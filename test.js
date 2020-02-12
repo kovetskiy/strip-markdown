@@ -6,11 +6,12 @@ var u = require('unist-builder')
 var strip = require('.')
 
 function proc(value, options) {
-  return remark()
+  let stripped = remark()
     .use(strip, options)
     .processSync(value)
     .toString()
     .trimRight()
+  return stripped
 }
 
 test('stripMarkdown()', function(t) {
@@ -80,9 +81,13 @@ test('stripMarkdown()', function(t) {
   t.equal(proc('---'), '', 'thematic break')
   t.equal(proc('A  \nB'), 'A\nB', 'hard line break')
   t.equal(proc('A\nB'), 'A\nB', 'soft line break')
-  t.equal(proc('| A | B |\n| - | - |\n| C | D |'), '', 'table')
-  t.equal(proc('\talert("hello");'), '', 'code (1)')
-  t.equal(proc('```js\nconsole.log("world");\n```'), '', 'code (2)')
+  t.equal(proc('| A | B |\n| - | - |\n| C | D |'), 'A B \n\nC D', 'table')
+  t.equal(proc('\talert("hello");'), 'alert("hello");', 'code (1)')
+  t.equal(
+    proc('```js\nconsole.log("world");\n```'),
+    'console.log("world");',
+    'code (2)'
+  )
   t.equal(proc('<sup>Hello</sup>'), 'Hello', 'html (1)')
   t.equal(proc('<script>alert("world");</script>'), '', 'html (2)')
   t.equal(

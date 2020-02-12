@@ -21,12 +21,13 @@ var map = {
   link: children,
   linkReference: children,
 
-  code: empty,
+  code: code,
   horizontalRule: empty,
   thematicBreak: empty,
   html: empty,
-  table: empty,
-  tableCell: empty,
+  table: children,
+  tableRow: tableRow,
+  tableCell: tableCell,
   definition: empty,
   yaml: empty,
   toml: empty
@@ -126,6 +127,28 @@ function paragraph(node) {
 
 function children(node) {
   return node.children || []
+}
+
+function code(node) {
+  return text(node)
+}
+
+function tableCell(node) {
+  let result = paragraph(node)
+  return result
+}
+
+function tableRow(node) {
+  var result = []
+  for (let i = 0; i < children(node).length; i++) {
+    let cell = one(node.children[i])
+    for (let j = 0; j < children(cell).length; j++) {
+      result.push(cell.children[j])
+      result.push({type: 'text', value: ' '})
+    }
+  }
+
+  return {type: 'paragraph', children: result}
 }
 
 function lineBreak() {
